@@ -1,6 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 const fetch = require("node-fetch");
+const {
+  encode,
+  decode,
+  encodeArray,
+  decodeArray,
+  encodeLimitedArray
+} = require("./build/wmmURLEncoder");
+
 const saveFilePaths = "public";
 function downloadUser(user) {
   return fetch("https://www.tweetjs.com/API.aspx", {
@@ -20,12 +28,18 @@ function downloadUser(user) {
   })
     .then(r => r.text())
     .then(body => {
+      body = encodeTimeline(body);
+      console.log(body.length, encodeURI(body).length);
       fs.writeFileSync(
         path.resolve(__dirname, saveFilePaths, `${user}.json`),
         body
       );
       return body;
     });
+}
+
+function encodeTimeline(body) {
+  return encodeLimitedArray(JSON.parse(body).map(el => el.text));
 }
 
 Promise.all(["xps3riments", "psxplace"].map(downloadUser)).then(() => {
@@ -36,3 +50,5 @@ fs.writeFileSync(
   path.resolve(__dirname, saveFilePaths, "index.html"),
   "HELLOWORLD"
 );
+
+console.log(encodeLimitedArray);
