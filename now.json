@@ -1,0 +1,33 @@
+{
+    "version": 2,
+    "name": "ps3-tw-timeline",
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@now/static-build"
+        },
+        {
+            "src": "*.json,*.xml",
+            "use": "@now/static"
+        }
+    ],
+    "routes": [
+        {
+            "headers": {
+                "Content-Type": "text/x-cross-domain-policy",
+                "Access-Control-Allow-Origin": "*"
+            },
+            "src": "/crossdomain.xml",
+            "dest": "/crossdomain.xml"
+        },
+        {
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+            },
+            "src": "/.*",
+            "dest": "/index.js"
+        }
+    ]
+}
