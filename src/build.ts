@@ -1,16 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 const fetch = require("node-fetch");
-const {
-  encode,
-  decode,
-  encodeArray,
-  decodeArray,
-  encodeLimitedArray
-} = require("./build/wmmURLEncoder");
 
-const saveFilePaths = "public";
-function downloadUser(user) {
+const { encodeLimitedArray } = require("./wmmURI");
+
+const saveFilePaths = "../public";
+function downloadUser(user: string) {
   return fetch("https://www.tweetjs.com/API.aspx", {
     credentials: "include",
     headers: {
@@ -26,29 +21,19 @@ function downloadUser(user) {
     method: "POST",
     mode: "cors"
   })
-    .then(r => r.text())
-    .then(body => {
+    .then((r: any) => r.text())
+    .then((body: string) => {
       body = encodeTimeline(body);
-      console.log(body.length, encodeURI(body).length);
       fs.writeFileSync(
-        path.resolve(__dirname, saveFilePaths, `${user}.json`),
+        path.resolve(__dirname, saveFilePaths, `${user}.settings`),
         body
       );
       return body;
     });
 }
 
-function encodeTimeline(body) {
-  return encodeLimitedArray(JSON.parse(body).map(el => el.text));
+function encodeTimeline(body: string) {
+  return encodeLimitedArray(JSON.parse(body).map((el: any) => el.text));
 }
 
-Promise.all(["xps3riments", "psxplace"].map(downloadUser)).then(() => {
-  console.log("done");
-});
-
-fs.writeFileSync(
-  path.resolve(__dirname, saveFilePaths, "index.html"),
-  "HELLOWORLD"
-);
-
-console.log(encodeLimitedArray);
+Promise.all(["xps3riments", "psxplace"].map(downloadUser));

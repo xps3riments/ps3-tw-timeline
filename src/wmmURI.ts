@@ -1,6 +1,9 @@
-const removeDiacritics = require("./removeDiacritics");
+import { removeDiacritics } from "./removeDiacritics";
+
+type Dictionary<Type> = { [key: string]: Type };
 const WMM_EDIT_URL_LIMIT = 1300;
-const encodingMapping = {
+
+const encodingMapping: Dictionary<string> = {
   _: "-",
   "\\&": "_0",
   "\\<": "_1",
@@ -24,7 +27,8 @@ const encodingMapping = {
   "[^a-zA-Z0-9 -_]": "",
   "\\s\\s": " "
 };
-const decodeMapping = {
+
+const decodeMapping: Dictionary<string> = {
   " ": "\\*",
   "&": "_0",
   "<": "_1",
@@ -45,7 +49,7 @@ const decodeMapping = {
   "'": "_G"
 };
 
-const htmlEntities = {
+const htmlEntities: Dictionary<string> = {
   nbsp: " ",
   cent: "¢",
   pound: "£",
@@ -60,8 +64,8 @@ const htmlEntities = {
   apos: "'"
 };
 
-function htmlDecode(str) {
-  return str.replace(/\&([^;]+);/g, function(entity, entityCode) {
+function htmlDecode(str: string) {
+  return str.replace(/\&([^;]+);/g, (entity, entityCode: string) => {
     var match;
 
     if (entityCode in htmlEntities) {
@@ -78,28 +82,37 @@ function htmlDecode(str) {
   });
 }
 
-function encode(text) {
+export function encode(text: string): string {
   text = htmlDecode(text);
   text = removeDiacritics(text);
   text = text.replace(/http[s]:[^ "]+/g, "");
+
   Object.keys(encodingMapping).forEach(key => {
     text = text.replace(new RegExp(key, "g"), encodingMapping[key]);
   });
+
   return text.trim().replace(/ /g, "*");
 }
-function decode(text) {
+
+export function decode(text: string): string {
   Object.keys(decodeMapping).forEach(key => {
     text = text.replace(new RegExp(decodeMapping[key], "g"), key);
   });
   return text;
 }
-function encodeArray(str) {
+
+export function encodeArray(str: string[]): string {
   return str.map(encode).join("!");
 }
-function decodeArray(str) {
+
+export function decodeArray(str: string): string[] {
   return str.split("!").map(decode);
 }
-function encodeLimitedArray(str, limit = WMM_EDIT_URL_LIMIT) {
+
+export function encodeLimitedArray(
+  str: string[],
+  limit: number = WMM_EDIT_URL_LIMIT
+): string {
   let count = encode(str[0]).length;
   return str
     .filter(t => encode(t).length !== 0)
@@ -115,10 +128,3 @@ function encodeLimitedArray(str, limit = WMM_EDIT_URL_LIMIT) {
     .filter(e => e !== null)
     .join("!");
 }
-module.exports = {
-  encode,
-  decode,
-  encodeArray,
-  decodeArray,
-  encodeLimitedArray
-};
